@@ -142,8 +142,15 @@ if [ -z "$SKIP_DOTNET" ]; then
     echo "Настройка серверной части с .NET..."
     cd server || exit
     
-    # Создаем WebAPI проект непосредственно в папке server
-    dotnet new webapi --no-https -o . || { echo "Ошибка при создании WebAPI проекта"; exit 1; }
+     # Создаем проекты
+    for project in Domain Application Persistence; do
+        dotnet new classlib -n "InterviewHub.$project" || { echo "Ошибка при создании проекта InterviewHub.$project"; exit 1; }
+        dotnet sln add "InterviewHub.$project/InterviewHub.$project.csproj" || { echo "Ошибка при добавлении проекта InterviewHub.$project в решение"; exit 1; }
+    done
+
+    # Устанавливаем WebAPI проект
+    dotnet new webapi --no-https -n "InterviewHub.API" || { echo "Ошибка при создании WebAPI проекта"; exit 1; }
+    dotnet sln add "InterviewHub.API/InterviewHub.API.csproj" || { echo "Ошибка при добавлении проекта InterviewHub.API в решение"; exit 1; }
     
     # Устанавливаем таймаут для команд dotnet add package
     add_package_with_retry() {
@@ -165,6 +172,8 @@ if [ -z "$SKIP_DOTNET" ]; then
         echo "Не удалось установить пакет $package после $max_attempts попыток. Пропускаем..."
         return 1
     }
+
+    cd "InterviewHub.API" || exit
     
     add_package_with_retry "Microsoft.AspNetCore.SignalR"
     add_package_with_retry "Minio"
