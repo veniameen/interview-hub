@@ -56,12 +56,3 @@ jobs:
         if: failure()
         run: |
           echo "Deployment failed. Sending notification..."
-
-      - name: Verify services
-        if: success()
-        run: |
-          ssh -o StrictHostKeyChecking=no $USER@$HOST << EOF
-            cd /var/app/interview-hub
-            docker-compose ps
-            docker-compose logs --tail=100
-          EOF
