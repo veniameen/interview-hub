@@ -32,9 +32,15 @@ jobs:
             git fetch --all
             git reset --hard origin/main
             
-            docker-compose down
+            cd client
+            rm -rf .next/cache
+            npm cache clean --force
+            cd ..
+
+            docker-compose down --rmi all -v --remove-orphans
+            docker-compose pull
             docker-compose build --no-cache
-            docker-compose up -d
+            docker-compose up -d --force-recreate
 
             for service in \$(docker-compose config --services); do
               if ! docker-compose ps \$service | grep -q "Up"; then
