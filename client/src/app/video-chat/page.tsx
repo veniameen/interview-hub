@@ -3,11 +3,6 @@
 'use client';
 
 import React, { useEffect, useRef, useState } from 'react';
-import OpenAI from "openai";
-
-const openai = new OpenAI({
-  apiKey: process.env.OPENAI_API_KEY
-});
 
 export default function VideoChat() {
   const localVideoRef = useRef(null);
@@ -87,15 +82,15 @@ export default function VideoChat() {
 
   const generateSummary = async () => {
     try {
-      const completion = await openai.chat.completions.create({
-        model: "gpt-4-0613",
-        messages: [
-          { role: "system", content: "You are a helpful assistant that summarizes text." },
-          { role: "user", content: `Summarize the following text in a concise manner: ${transcription}` },
-        ],
-      });
+      // const completion = await openai.chat.completions.create({
+      //   model: "gpt-4-0613",
+      //   messages: [
+      //     { role: "system", content: "You are a helpful assistant that summarizes text." },
+      //     { role: "user", content: `Summarize the following text in a concise manner: ${transcription}` },
+      //   ],
+      // });
 
-      setSummary(completion.choices[0].message.content);
+      setSummary(transcription);
     } catch (error) {
       console.error(error);
     }
