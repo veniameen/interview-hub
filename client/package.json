@@ -9,6 +9,7 @@
     "lint": "next lint"
   },
   "dependencies": {
+    "@microsoft/signalr": "^8.0.7",
     "express": "^4.21.0",
     "http-proxy-middleware": "^3.0.2",
     "next": "14.2.14",
