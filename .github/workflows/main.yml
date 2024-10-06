@@ -55,7 +55,7 @@ jobs:
         if: success()
         run: |
           ssh -o StrictHostKeyChecking=no $USER@$HOST << EOF
-            cd /path/to/interview-hub
+            cd /var/app/interview-hub
             docker-compose ps
             docker-compose logs --tail=100
           EOF
