@@ -1,17 +1,20 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.9.34622.214
+MinimumVisualStudioVersion = 10.0.40219.1
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{244E9519-B5EB-433D-941A-5E48DC424AAC}"
 	ProjectSection(SolutionItems) = preProject
 		docker-compose.yml = docker-compose.yml
 	EndProjectSection
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "InterviewHub.API", "InterviewHub.API\InterviewHub.API.csproj", "{6052F8C2-50DE-4E46-A902-3FF848662DD0}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "InterviewHub.API", "InterviewHub.API\InterviewHub.API.csproj", "{6052F8C2-50DE-4E46-A902-3FF848662DD0}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "InterviewHub.Domain", "InterviewHub.Domain\InterviewHub.Domain.csproj", "{217E01C7-0261-4686-B266-1F8ADDB92FA7}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "InterviewHub.Domain", "InterviewHub.Domain\InterviewHub.Domain.csproj", "{217E01C7-0261-4686-B266-1F8ADDB92FA7}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "InterviewHub.Application", "InterviewHub.Application\InterviewHub.Application.csproj", "{3F53A5A9-3954-48CB-BC8A-9884922819DC}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "InterviewHub.Application", "InterviewHub.Application\InterviewHub.Application.csproj", "{3F53A5A9-3954-48CB-BC8A-9884922819DC}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "InterviewHub.Persistence", "InterviewHub.Persistence\InterviewHub.Persistence.csproj", "{2FDA1B72-F707-4A2B-A519-951DF589D840}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "InterviewHub.Persistence", "InterviewHub.Persistence\InterviewHub.Persistence.csproj", "{2FDA1B72-F707-4A2B-A519-951DF589D840}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Core", "Core", "{C82DCE24-47B6-4722-8576-5D783BAB2E63}"
 EndProject
@@ -42,10 +45,16 @@ Global
 		{2FDA1B72-F707-4A2B-A519-951DF589D840}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{2FDA1B72-F707-4A2B-A519-951DF589D840}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
 	GlobalSection(NestedProjects) = preSolution
-		{3F53A5A9-3954-48CB-BC8A-9884922819DC} = {C82DCE24-47B6-4722-8576-5D783BAB2E63}
-		{217E01C7-0261-4686-B266-1F8ADDB92FA7} = {C82DCE24-47B6-4722-8576-5D783BAB2E63}
-		{2FDA1B72-F707-4A2B-A519-951DF589D840} = {8B1E2B59-7730-4C49-86A9-D2F0ADB259D9}
 		{6052F8C2-50DE-4E46-A902-3FF848662DD0} = {49C511B5-7738-426D-9949-21B5E0D574BF}
+		{217E01C7-0261-4686-B266-1F8ADDB92FA7} = {C82DCE24-47B6-4722-8576-5D783BAB2E63}
+		{3F53A5A9-3954-48CB-BC8A-9884922819DC} = {C82DCE24-47B6-4722-8576-5D783BAB2E63}
+		{2FDA1B72-F707-4A2B-A519-951DF589D840} = {8B1E2B59-7730-4C49-86A9-D2F0ADB259D9}
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {A937E148-3272-4E81-B5FE-4FB92B1C8E70}
 	EndGlobalSection
 EndGlobal

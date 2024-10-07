@@ -4,9 +4,9 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace BaseProject.API.Controllers
 {
-    [Authorize]
+    //[Authorize]
     [Route("api/[controller]")]
-    public class NoteController(IMapper mapper) : BaseController
+    public class NoteController(IMapper mapper, IConfiguration configuration) : BaseController
     {
         private readonly IMapper _mapper = mapper;
 
@@ -17,9 +17,11 @@ namespace BaseProject.API.Controllers
         }
 
         [HttpGet("{id}")]
-        public async Task<ActionResult<int>> Get(Guid id)
+        public async Task<ActionResult<int>> Get(string id)
         {
-            return Ok(1);
+            var a = configuration.GetSection(id);
+            
+            return Ok(configuration[id]);
         }
 
         [HttpPost]

@@ -14,7 +14,7 @@ services:
 
   server:
     build:
-      context: ./server
+      context: ./server-test
       dockerfile: Dockerfile
     ports:
       - "5000:5000"
@@ -23,7 +23,7 @@ services:
       - minio
     environment:
       - ASPNETCORE_URLS=http://+:5000
-      - ConnectionStrings__DefaultConnection=Host=postgres;Database=interviewhub;Username=ihubuser;Password=ih_strong_pass_123!
+      - ConnectionStrings__DatabaseContext=Host=postgres;Database=interviewhub;Username=ihubuser;Password=ih_strong_pass_123!
       - Minio__Endpoint=minio:9000
       - Minio__AccessKey=ihub_minio_access
       - Minio__SecretKey=ihub_minio_secret_123!

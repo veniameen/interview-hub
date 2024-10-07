@@ -3052,24 +3052,31 @@
     ]
   },
   "packageFolders": {
-    "/Users/21295700/.nuget/packages/": {}
+    "C:\\Users\\fdkir\\.nuget\\packages\\": {},
+    "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages": {}
   },
   "project": {
     "version": "1.0.0",
     "restore": {
-      "projectUniqueName": "/Users/21295700/Projects/interview-hub/server/server.csproj",
+      "projectUniqueName": "D:\\Projects\\Pojects\\interview-hub\\server\\server.csproj",
       "projectName": "server",
-      "projectPath": "/Users/21295700/Projects/interview-hub/server/server.csproj",
-      "packagesPath": "/Users/21295700/.nuget/packages/",
-      "outputPath": "/Users/21295700/Projects/interview-hub/server/obj/",
+      "projectPath": "D:\\Projects\\Pojects\\interview-hub\\server\\server.csproj",
+      "packagesPath": "C:\\Users\\fdkir\\.nuget\\packages\\",
+      "outputPath": "D:\\Projects\\Pojects\\interview-hub\\server\\obj\\",
       "projectStyle": "PackageReference",
+      "fallbackFolders": [
+        "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
+      ],
       "configFilePaths": [
-        "/Users/21295700/.nuget/NuGet/NuGet.Config"
+        "C:\\Users\\fdkir\\AppData\\Roaming\\NuGet\\NuGet.Config",
+        "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.FallbackLocation.config",
+        "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
       ],
       "originalTargetFrameworks": [
         "net8.0"
       ],
       "sources": {
+        "C:\\Program Files (x86)\\Microsoft SDKs\\NuGetPackages\\": {},
         "https://api.nuget.org/v3/index.json": {}
       },
       "frameworks": {
@@ -3133,7 +3140,7 @@
             "privateAssets": "all"
           }
         },
-        "runtimeIdentifierGraphPath": "/usr/local/share/dotnet/sdk/8.0.402/PortableRuntimeIdentifierGraph.json"
+        "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\8.0.200/PortableRuntimeIdentifierGraph.json"
       }
     }
   }

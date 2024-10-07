@@ -11,8 +11,7 @@ namespace BaseProject.API.Models
 
         public void Mapping(Profile profile)
         {
-            profile.CreateMap<CreateDto, string>()
-                .ForMember(noteCommand => noteCommand, opt => opt.MapFrom(noteDto => noteDto.Title));
+            //profile.CreateMap<CreateDto, string>().ForMember(noteCommand => noteCommand, opt => opt.MapFrom(noteDto => noteDto.Title));
         }
     }
 }
