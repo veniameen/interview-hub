@@ -1,10 +1,7 @@
 'use client'
 
-// Фронтенд (React + TypeScript)
-
-// VideoChat.tsx
-import React, { useEffect, useRef, useState } from 'react';
-import { HubConnection, HubConnectionBuilder } from '@microsoft/signalr';
+import React, {useEffect, useRef, useState} from 'react';
+import {HubConnection, HubConnectionBuilder} from '@microsoft/signalr';
 
 interface Message {
     user: string;
@@ -15,6 +12,8 @@ const VideoChat: React.FC = () => {
     const [connection, setConnection] = useState<HubConnection | null>(null);
     const [messages, setMessages] = useState<Message[]>([]);
     const [inputMessage, setInputMessage] = useState('');
+    const [room, setRoom] = useState('');
+    const [inRoom, setInRoom] = useState(false);
     const localVideoRef = useRef<HTMLVideoElement>(null);
     const remoteVideoRef = useRef<HTMLVideoElement>(null);
     const screenShareRef = useRef<HTMLVideoElement>(null);
@@ -38,7 +37,7 @@ const VideoChat: React.FC = () => {
                     console.log('Connected to SignalR Hub');
 
                     connection.on("ReceiveMessage", (user: string, message: string) => {
-                        setMessages(prevMessages => [...prevMessages, { user, text: message }]);
+                        setMessages(prevMessages => [...prevMessages, {user, text: message}]);
                     });
 
                     connection.on("ReceiveOffer", async (offer: RTCSessionDescriptionInit, isScreenShare: boolean) => {
@@ -63,9 +62,29 @@ const VideoChat: React.FC = () => {
         }
     }, [connection]);
 
+    const joinRoom = async (room: string) => {
+        if (connection) {
+            await connection.invoke("JoinRoom", room);
+            setInRoom(true);
+        }
+    };
+
+    const leaveRoom = async () => {
+        if (connection && room) {
+            await connection.invoke("LeaveRoom", room);
+            setInRoom(false);
+        }
+    };
+
+    const createRoom = () => {
+        const newRoom = Math.random().toString(36).substring(2, 9);
+        setRoom(newRoom);
+        joinRoom(newRoom);
+    };
+
     const setupPeerConnection = async (isScreenShare: boolean = false) => {
         const newConnection = new RTCPeerConnection({
-            iceServers: [{ urls: 'stun:stun.l.google.com:19302' }]
+            iceServers: [{urls: 'stun:stun.l.google.com:19302'}]
         });
 
         if (isScreenShare) {
@@ -76,10 +95,10 @@ const VideoChat: React.FC = () => {
 
         let stream;
         if (isScreenShare) {
-            stream = await navigator.mediaDevices.getDisplayMedia({ video: true });
+            stream = await navigator.mediaDevices.getDisplayMedia({video: true});
             setIsScreenSharing(true);
         } else {
-            stream = await navigator.mediaDevices.getUserMedia({ video: true, audio: true });
+            stream = await navigator.mediaDevices.getUserMedia({video: true, audio: true});
         }
 
         stream.getTracks().forEach(track => newConnection.addTrack(track, stream));
@@ -100,7 +119,7 @@ const VideoChat: React.FC = () => {
 
         newConnection.onicecandidate = (event) => {
             if (event.candidate) {
-                connection!.invoke("SendIceCandidate", JSON.stringify(event.candidate), isScreenShare);
+                connection!.invoke("SendIceCandidate", room, JSON.stringify(event.candidate), isScreenShare);
             }
         };
 
@@ -114,7 +133,7 @@ const VideoChat: React.FC = () => {
         await peerConnection.current!.setRemoteDescription(new RTCSessionDescription(offer));
         const answer = await peerConnection.current!.createAnswer();
         await peerConnection.current!.setLocalDescription(answer);
-        await connection!.invoke("SendAnswer", JSON.stringify(answer), false);
+        await connection!.invoke("SendAnswer", room, JSON.stringify(answer), false);
     };
 
     const handleScreenShareOffer = async (offer: RTCSessionDescriptionInit) => {
@@ -124,14 +143,14 @@ const VideoChat: React.FC = () => {
         await screenShareConnection.current!.setRemoteDescription(new RTCSessionDescription(offer));
         const answer = await screenShareConnection.current!.createAnswer();
         await screenShareConnection.current!.setLocalDescription(answer);
-        await connection!.invoke("SendAnswer", JSON.stringify(answer), true);
+        await connection!.invoke("SendAnswer", room, JSON.stringify(answer), true);
     };
 
     const startCall = async () => {
         await setupPeerConnection();
         const offer = await peerConnection.current!.createOffer();
         await peerConnection.current!.setLocalDescription(offer);
-        await connection!.invoke("SendOffer", JSON.stringify(offer), false);
+        await connection!.invoke("SendOffer", room, JSON.stringify(offer), false);
     };
 
     const startScreenShare = async () => {
@@ -143,7 +162,7 @@ const VideoChat: React.FC = () => {
         await setupPeerConnection(true);
         const offer = await screenShareConnection.current!.createOffer();
         await screenShareConnection.current!.setLocalDescription(offer);
-        await connection!.invoke("SendOffer", JSON.stringify(offer), true);
+        await connection!.invoke("SendOffer", room, JSON.stringify(offer), true);
     };
 
     const stopScreenShare = () => {
@@ -164,27 +183,58 @@ const VideoChat: React.FC = () => {
         }
     };
 
+    useEffect(() => {
+        return () => {
+            if (peerConnection.current) {
+                peerConnection.current.close();
+            }
+            if (screenShareConnection.current) {
+                screenShareConnection.current.close();
+            }
+            if (connection) {
+                connection.stop();
+            }
+        };
+    }, []);
+
     return (
         <div>
-            <div>
-                <video ref={localVideoRef} autoPlay muted />
-                <video ref={remoteVideoRef} autoPlay />
-                <video ref={screenShareRef} autoPlay />
-            </div>
-            <button onClick={startCall}>Start Call</button>
-            <button onClick={startScreenShare} disabled={isScreenSharing}>Start Screen Share</button>
-            <button onClick={stopScreenShare} disabled={!isScreenSharing}>Stop Screen Share</button>
-            <div>
-                {messages.map((msg, index) => (
-                    <p key={index}><strong>{msg.user}:</strong> {msg.text}</p>
-                ))}
-            </div>
-            <input
-                type="text"
-                value={inputMessage}
-                onChange={(e) => setInputMessage(e.target.value)}
-            />
-            <button onClick={sendMessage}>Send</button>
+            {!inRoom
+                ?   <div>
+                        <input
+                            type="text"
+                            placeholder="Enter room number"
+                            value={room}
+                            onChange={(e) => setRoom(e.target.value)}
+                        />
+                        <br/>
+                        <button onClick={() => joinRoom(room)}>Join Room</button>
+                        <br/>
+                        <button onClick={createRoom}>Create Room</button>
+                    </div>
+                :   <div>
+                        <div>
+                            <video ref={localVideoRef} autoPlay muted/>
+                            <video ref={remoteVideoRef} autoPlay/>
+                            <video ref={screenShareRef} autoPlay/>
+                        </div>
+                        <button onClick={startCall}>Start Call</button>
+                        <button onClick={startScreenShare} disabled={isScreenSharing}>Start Screen Share</button>
+                        <button onClick={stopScreenShare} disabled={!isScreenSharing}>Stop Screen Share</button>
+                        <button onClick={leaveRoom}>Leave Room</button>
+                        <div>
+                            {messages.map((msg, index) => (
+                                <p key={index}><strong>{msg.user}:</strong> {msg.text}</p>
+                            ))}
+                        </div>
+                        <input
+                            type="text"
+                            value={inputMessage}
+                            onChange={(e) => setInputMessage(e.target.value)}
+                        />
+                        <button onClick={sendMessage}>Send</button>
+                    </div>
+            }
         </div>
     );
 };
