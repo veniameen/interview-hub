@@ -1,101 +1,177 @@
-import Image from "next/image";
+/* eslint-disable @typescript-eslint/no-unused-vars */
+'use client'
+
+import Editor, { OnMount } from '@monaco-editor/react'
+import { useEffect, useRef, useState } from 'react'
+import { Select, SelectItem } from '@nextui-org/select'
+import * as monaco from 'monaco-editor'
+import { LANGUAGES, initialCode } from '../const'
+import { Button } from '@nextui-org/react'
+import { axiosInstance } from '@/utils'
+
+import { io } from 'socket.io-client'
+
+export const socket = io()
 
 export default function Home() {
-  return (
-    <div className="grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20 font-[family-name:var(--font-geist-sans)]">
-      <main className="flex flex-col gap-8 row-start-2 items-center sm:items-start">
-        <Image
-          className="dark:invert"
-          src="https://nextjs.org/icons/next.svg"
-          alt="Next.js logo"
-          width={180}
-          height={38}
-          priority
-        />
-        <ol className="list-inside list-decimal text-sm text-center sm:text-left font-[family-name:var(--font-geist-mono)]">
-          <li className="mb-2">
-            Get started by editing{" "}
-            <code className="bg-black/[.05] dark:bg-white/[.06] px-1 py-0.5 rounded font-semibold">
-              src/app/page.tsx
-            </code>
-            .
-          </li>
-          <li>Save and see your changes instantly.</li>
-        </ol>
+  const [code, setCode] = useState(initialCode)
+  const [languages, setLanguages] = useState([LANGUAGES.javascript])
+  const [selectedLanguage, setSelectedLanguage] = useState<string>(LANGUAGES.javascript)
+  const [cursors, setCursors] = useState<
+    { id: string; position: monaco.Position; range: monaco.Selection; color: string }[]
+  >([])
 
-        <div className="flex gap-4 items-center flex-col sm:flex-row">
-          <a
-            className="rounded-full border border-solid border-transparent transition-colors flex items-center justify-center bg-foreground text-background gap-2 hover:bg-[#383838] dark:hover:bg-[#ccc] text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="https://nextjs.org/icons/vercel.svg"
-              alt="Vercel logomark"
-              width={20}
-              height={20}
-            />
-            Deploy now
-          </a>
-          <a
-            className="rounded-full border border-solid border-black/[.08] dark:border-white/[.145] transition-colors flex items-center justify-center hover:bg-[#f2f2f2] dark:hover:bg-[#1a1a1a] hover:border-transparent text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 sm:min-w-44"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Read our docs
-          </a>
-        </div>
+  const editorRef = useRef<monaco.editor.IStandaloneCodeEditor | null>(null)
+  const decorationsRef = useRef<string[]>([])
+  const colorMap = useRef<{ [key: string]: string }>({})
+
+  const colors = ['red', 'green', 'blue', 'yellow', 'purple', 'orange']
+
+  const [isConnected, setIsConnected] = useState(false)
+  const [transport, setTransport] = useState('N/A')
+
+  useEffect(() => {
+    if (socket.connected) {
+      onConnect()
+    }
+
+    function onConnect() {
+      setIsConnected(true)
+      setTransport(socket.io.engine.transport.name)
+
+      socket.io.engine.on('upgrade', (transport) => {
+        setTransport(transport.name)
+      })
+    }
+
+    function onDisconnect() {
+      setIsConnected(false)
+      setTransport('N/A')
+    }
+
+    socket.on('connect', onConnect)
+    socket.on('disconnect', onDisconnect)
+
+    return () => {
+      socket.off('connect', onConnect)
+      socket.off('disconnect', onDisconnect)
+    }
+  }, [])
+
+  const handleEditorChange = (value: string | undefined) => {
+    if (value) {
+      setCode(value)
+    }
+  }
+
+  const handleEditorMount: OnMount = (editor) => {
+    editorRef.current = editor
+
+    editor.onDidChangeCursorPosition((event) => {
+      const position = event.position
+      const selection = editor.getSelection()
+
+      if (selection) {
+        // const cursorData = {
+        //   id: webSocket.url, // You can use other unique identifiers like user ID
+        //   position,
+        //   selection,
+        // }
+        // webSocket.send(JSON.stringify(cursorData)) // Send cursor data to server
+      }
+    })
+  }
+
+  useEffect(() => {
+    axiosInstance.get('/languages').then(({ data }) => {
+      setLanguages(data)
+    })
+  }, [])
+
+  // Обновляем декорации курсоров
+  useEffect(() => {
+    if (!editorRef.current) return
+
+    const newDecorations = cursors.map((cursor) => {
+      return [
+        {
+          range: new monaco.Range(
+            cursor.position.lineNumber,
+            cursor.position.column,
+            cursor.position.lineNumber,
+            cursor.position.column,
+          ),
+          options: {
+            className: `foreign-cursor-${cursor.color}`,
+            afterContentClassName: `foreign-cursor-after-${cursor.color}`,
+          },
+        },
+        {
+          range: new monaco.Range(
+            cursor.range.startLineNumber,
+            cursor.range.startColumn,
+            cursor.range.endLineNumber,
+            cursor.range.endColumn,
+          ),
+          options: {
+            className: `foreign-selection-${cursor.color}`,
+          },
+        },
+      ]
+    })
+
+    decorationsRef.current = editorRef.current.deltaDecorations(decorationsRef.current, newDecorations.flat())
+  }, [cursors])
+
+  const handleStartCode = () => {
+    if (!editorRef.current) return
+
+    axiosInstance
+      .post('/run-code', {
+        code,
+        language: selectedLanguage,
+      })
+      .then(({ data }) => {
+        console.log(data)
+      })
+  }
+
+  return (
+    <div>
+      <header className='h-16'>
+        <Select
+          className='bg-black'
+          classNames={{ trigger: 'bg-black hover:bg-black', popoverContent: 'bg-black' }}
+          value={selectedLanguage}
+          onChange={(value) => setSelectedLanguage(value.target.value)}
+          label='language'
+        >
+          {languages.map((lang) => (
+            <SelectItem key={lang} value={lang}>
+              {lang}
+            </SelectItem>
+          ))}
+        </Select>
+      </header>
+      <main className='h-[calc(80vh-24rem)] flex items-center justify-center'>
+        <Editor
+          defaultLanguage='javascript'
+          language={selectedLanguage}
+          className='bg-black'
+          saveViewState
+          theme='vs-dark'
+          height={'100%'}
+          onChange={handleEditorChange}
+          onMount={handleEditorMount}
+          value={code}
+          options={{ minimap: { enabled: false } }}
+        />
       </main>
-      <footer className="row-start-3 flex gap-6 flex-wrap items-center justify-center">
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="https://nextjs.org/icons/file.svg"
-            alt="File icon"
-            width={16}
-            height={16}
-          />
-          Learn
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="https://nextjs.org/icons/window.svg"
-            alt="Window icon"
-            width={16}
-            height={16}
-          />
-          Examples
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="https://nextjs.org/icons/globe.svg"
-            alt="Globe icon"
-            width={16}
-            height={16}
-          />
-          Go to nextjs.org →
-        </a>
+      <footer className='h-4'>
+        <Button onClick={handleStartCode} color='secondary'>
+          Start
+        </Button>
       </footer>
     </div>
-  );
+  )
 }
