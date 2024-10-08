@@ -23,17 +23,16 @@ const languageConfigs = {
   },
 }
 
-const app = next({ dev, hostname, port })
-const handle = app.getRequestHandler()
+const nextApp = next({ dev, hostname, port })
+const handle = nextApp.getRequestHandler()
 
-app.prepare().then(() => {
+nextApp.prepare().then(() => {
   const app = express()
   const server = http.createServer(app)
-
   const io = new Server(server)
 
   io.on('connection', (socket) => {
-    console.log(socket)
+    console.log('Новое соединение:', socket.id)
   })
 
   app.use(bodyParser.json())
@@ -54,20 +53,17 @@ app.prepare().then(() => {
   app.post('/run-code', async (req, res) => {
     const { language, code } = req.body
     const config = languageConfigs[language]
-
     if (!config) {
-      throw new Error(`Unsupported language: ${language}`)
+      return res.status(400).json({ error: `Unsupported language: ${language}` })
     }
 
     const workDir = '/tmp'
     const filename = `Main.${config.fileExtension}`
-
     const folderPath = path.join(__dirname, workDir)
-    await fs.mkdir(folderPath, { recursive: true })
-
     const filePath = path.join(folderPath, filename)
 
     try {
+      await fs.mkdir(folderPath, { recursive: true })
       await fs.writeFile(filePath, code)
 
       exec(`${config.command} ${filePath}`, (error, stdout, stderr) => {
@@ -80,7 +76,6 @@ app.prepare().then(() => {
     } catch (error) {
       console.error('Error executing code:', error)
       res.status(500).json({ error: error.message })
-      throw error
     } finally {
       await fs.unlink(filePath).catch(console.error)
     }
@@ -92,7 +87,7 @@ app.prepare().then(() => {
     return handle(req, res)
   })
 
-  app.listen(port, (err) => {
+  server.listen(port, (err) => {
     if (err) throw err
     console.log(`> Ready on http://${hostname}:${port}`)
   })
