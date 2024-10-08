@@ -13,18 +13,19 @@
         <PackageReference Include="MediatR" Version="12.4.1" />
         <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="8.0.8" />
         <PackageReference Include="Microsoft.AspNetCore.OpenApi" Version="8.0.2"/>
+        <PackageReference Include="Microsoft.AspNetCore.SignalR.Common" Version="8.0.8" />
         <PackageReference Include="Swashbuckle.AspNetCore" Version="6.4.0"/>
+    </ItemGroup>
+
+    <ItemGroup>
+      <ProjectReference Include="..\InterviewHub.Application\InterviewHub.Application.csproj" />
+      <ProjectReference Include="..\InterviewHub.Persistence\InterviewHub.Persistence.csproj" />
     </ItemGroup>
 
     <ItemGroup>
       <Content Include="..\.dockerignore">
         <Link>.dockerignore</Link>
       </Content>
-    </ItemGroup>
-
-    <ItemGroup>
-      <ProjectReference Include="..\InterviewHub.Application\InterviewHub.Application.csproj" />
-      <ProjectReference Include="..\InterviewHub.Persistence\InterviewHub.Persistence.csproj" />
     </ItemGroup>
 
 </Project>

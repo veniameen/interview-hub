@@ -1,4 +1,5 @@
 using System.Reflection;
+using BaseProject.API.Hubs;
 using BaseProject.API.Middleware;
 using InterviewHub.Application;
 using InterviewHub.Application.Common.Mappings;
@@ -21,6 +22,8 @@ var builder = WebApplication.CreateBuilder(args);
     builder.Services.AddPersistence(builder.Configuration);
     builder.Services.AddControllers();
 
+    builder.Services.AddSignalR();
+
     builder.Services.AddCors(options =>
     {
         options.AddPolicy("AllowAll", policy =>
@@ -31,29 +34,26 @@ var builder = WebApplication.CreateBuilder(args);
         });
     });
 
-    builder.Services.AddAuthentication(config =>
-        {
-            config.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
-            config.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
-        })
-        .AddJwtBearer(JwtBearerDefaults.AuthenticationScheme
+    // builder.Services.AddAuthentication(config =>
+    //     {
+    //         config.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+    //         config.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+    //     })
+    //     .AddJwtBearer(JwtBearerDefaults.AuthenticationScheme
             //options =>
-        // {
-        //     options.Authority = builder.Configuration.GetSection("IdentityService:Host").Value;
-        //     options.Audience = "ApplicationAPI";
-        //     options.RequireHttpsMetadata = false;
-        // }
-        );
+            // {
+            //     options.Authority = builder.Configuration.GetSection("IdentityService:Host").Value;
+            //     options.Audience = "ApplicationAPI";
+            //     options.RequireHttpsMetadata = false;
+            // }
+        //);
 }
 
 {
     var app = builder.Build();
-    
-    if (app.Environment.IsDevelopment())
-    {
-        app.UseSwagger();
-        app.UseSwaggerUI();
-    }
+
+    app.UseSwagger();
+    app.UseSwaggerUI();
 
     app.UseCustomExceptionHandler();
     app.UseRouting();
@@ -61,9 +61,11 @@ var builder = WebApplication.CreateBuilder(args);
 
     app.UseCors("AllowAll");
 
-    app.UseAuthentication();
-    app.UseAuthorization();
+    //app.UseAuthentication();
+    //app.UseAuthorization();
+
+    app.UseHubs();
+    app.MapControllers();
 
     app.Run();
 }
-

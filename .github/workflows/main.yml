@@ -1,0 +1,58 @@
+name: ci/cd
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Set up SSH key
+        uses: webfactory/ssh-agent@v0.5.3
+        with:
+          ssh-private-key: ${{ secrets.SSH_KEY }}
+
+      - name: Deploy to server
+        env:
+          HOST: ${{ secrets.SERVER_HOST }}
+          USER: ${{ secrets.SERVER_USER }}
+        run: |
+          ssh -o StrictHostKeyChecking=no $USER@$HOST << EOF
+            cd /var/app/interview-hub
+            git clean -fdx
+            git fetch --all
+            git reset --hard origin/main
+            
+            cd client
+            rm -rf .next/cache
+            npm cache clean --force
+            cd ..
+
+            docker-compose down --rmi all -v --remove-orphans
+            docker-compose pull
+            docker-compose build --no-cache
+            docker-compose up -d --force-recreate
+
+            for service in \$(docker-compose config --services); do
+              if ! docker-compose ps \$service | grep -q "Up"; then
+                echo "\$service is down. Attempting to restart..."
+                docker-compose up -d --force-recreate \$service
+              fi
+            done
+
+            docker system prune -af
+          EOF
+
+      - name: Check deployment status
+        if: failure()
+        run: |
+          echo "Deployment failed. Sending notification..."
