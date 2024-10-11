@@ -14,7 +14,7 @@ export function Particles({ children }: { children: React.ReactNode }) {
   }, [theme]);
 
   return (
-    <div className="relative flex h-full w-full flex-col items-center justify-center overflow-hidden">
+    <div className="absolute top-0 left-0 flex h-full w-full flex-col items-center justify-center overflow-hidden z-[0]">
       {children}
       <ParticlesUI
         className="absolute inset-0 opacity-50"

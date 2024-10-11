@@ -1,15 +1,16 @@
-/server-test/InterviewHub.API/InterviewHub.API.csproj
-/server-test/InterviewHub.API/bin
-/server-test/InterviewHub.API/obj
-/server-test/InterviewHub.Application/bin
-/server-test/InterviewHub.Application/obj
-/server-test/InterviewHub.Domain/bin
-/server-test/InterviewHub.Domain/obj
-/server-test/InterviewHub.Persistence/bin
-/server-test/InterviewHub.Persistence/obj
-/server-test/.vs
+/server/InterviewHub.API/bin
+/server/InterviewHub.API/obj
+/server/InterviewHub.Application/bin
+/server/InterviewHub.Application/obj
+/server/InterviewHub.Domain/bin
+/server/InterviewHub.Domain/obj
+/server/InterviewHub.Persistence/bin
+/server/InterviewHub.Persistence/obj
+/server/.vs
 .idea/
 
 /server/.vs
 /server/obj
 /server/bin
+
+node_modules

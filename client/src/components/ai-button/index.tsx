@@ -154,7 +154,6 @@ export default function AiButton() {
           }}
           className="absolute left-3 top-4 size-1.5 animate-sparkle fill-white"
         />
-
         <span className="font-semibold text-[.7rem]">Подготовка с AI GigaChat</span>
       </div>
       {!!particleState && (

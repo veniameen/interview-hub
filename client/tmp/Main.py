@@ -1,1 +1,4 @@
-print(123)
+def asd:
+    print range(0, 1)
+
+asd()

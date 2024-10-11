@@ -1,6 +1,7 @@
 version: '3.8'
 
 services:
+
   client:
     build:
       context: ./client
@@ -8,28 +9,34 @@ services:
     ports:
       - "3000:3000"
     environment:
-      - API_URL=http://server:5000
+      - API_URL=http://server:80
     depends_on:
       - server
 
   server:
     build:
-      context: ./server-test
+      context: ./server
       dockerfile: Dockerfile
     ports:
-      - "5000:5000"
+      - "5000:80"
     depends_on:
       - postgres
       - minio
     environment:
-      - ASPNETCORE_URLS=http://+:5000
+      - ASPNETCORE_URLS=http://+:80
       - ConnectionStrings__DatabaseContext=Host=postgres;Database=interviewhub;Username=ihubuser;Password=ih_strong_pass_123!
       - Minio__Endpoint=minio:9000
       - Minio__AccessKey=ihub_minio_access
       - Minio__SecretKey=ihub_minio_secret_123!
-
+      - GigaChat__SecretKey=ZDUyZTMxNjItMDVhNy00Y2U4LTg1NTctMmM4M2Q3MWE1M2NkOjE0ZDAwYmFkLTgwN2ItNDkzOC1hMTA5LTI1NTgxNTBmMDk0ZQ==
+      - GigaChat__ClientId=d52e3162-05a7-4ce8-8557-2c83d71a53cd
+      - GigaChat__Scope=GIGACHAT_API_PERS
+      - GigaChat__Url=https://gigachat.devices.sberbank.ru/api/v1
+      - GigaChat__AuthUrl=https://ngw.devices.sberbank.ru:9443/api/v2/oauth
   postgres:
     image: postgres:14
+    ports: 
+      - "5432:5432"
     environment:
       POSTGRES_DB: interviewhub
       POSTGRES_USER: ihubuser
@@ -52,3 +59,4 @@ services:
 volumes:
   postgres-data:
   minio-data:
+
